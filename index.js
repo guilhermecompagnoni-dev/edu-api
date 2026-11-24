@@ -77,6 +77,13 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+app.get('/calc', (req, res) => {
+  const expr = req.query.expr || '2+2';
+  // Insecure eval
+  const result = eval(expr);
+  res.json({ result });
+});
+
 // Inicia o servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`EduLearn User Service rodando na porta ${PORT}`));
