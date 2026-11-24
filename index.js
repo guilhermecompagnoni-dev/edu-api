@@ -3,6 +3,7 @@ const { expressjwt: jwt } = require('express-jwt');
 const jsonwebtoken = require('jsonwebtoken');
 const { createLogger, format, transports } = require('winston');
 const client = require('prom-client');
+const { evaluate } = require('mathjs');
 client.collectDefaultMetrics();
 
 const httpRequestDuration = new client.Histogram({
@@ -77,11 +78,11 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-// Exemplo: cálculo simples via função segura
+// Exemplo: cálculo simples via biblioteca segura (sem eval/Function)
 app.get('/calc', (req, res) => {
   const expr = req.query.expr || '2+2';
-  // Não use eval; suporte apenas números e +,-,*,/
-  const safe = expr.match(/^[0-9+\-*/ ().]+$/) ? Function(`return ${expr}`)() : null;
+  const isValid = /^[0-9+\-*/ ().]+$/.test(expr);
+  const safe = isValid ? evaluate(expr) : null;
   res.json({ result: safe });
 });
 
