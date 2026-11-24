@@ -3,6 +3,7 @@ const { expressjwt: jwt } = require('express-jwt');
 const jsonwebtoken = require('jsonwebtoken');
 const { createLogger, format, transports } = require('winston');
 const client = require('prom-client');
+const { evaluate } = require('mathjs');
 client.collectDefaultMetrics();
 
 const httpRequestDuration = new client.Histogram({
@@ -75,6 +76,14 @@ app.use((err, req, res, next) => {
     return res.status(401).json({ message: 'Token inválido ou ausente' });
   }
   next(err);
+});
+
+// Exemplo: cálculo simples via biblioteca segura (sem eval/Function)
+app.get('/calc', (req, res) => {
+  const expr = req.query.expr || '2+2';
+  const isValid = /^[0-9+\-*/ ().]+$/.test(expr);
+  const safe = isValid ? evaluate(expr) : null;
+  res.json({ result: safe });
 });
 
 // Inicia o servidor
